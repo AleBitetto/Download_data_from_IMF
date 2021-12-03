@@ -209,6 +209,51 @@ source('./Help.R')
   
   saveRDS(df_final, './df_final.rds')
   
+  # double check single-rowed data
+  
+  index_to_fix = df_final %>%
+    mutate(iid = 1:nrow(.)) %>%
+    filter(is.na(nrow) & !is.na(date_min)) %>%
+    pull(iid)
+  
+  if (length(index_to_fix) > 0){
+    
+    tot_na_rows = sum(is.na(df_final$nrow))
+    fixed_rows = c()
+    for (i in index_to_fix){
+      
+      row = df_final[i, ]
+      if (is.na(row$nrow) & row$status == "OK"){
+        
+        dd = row$data[[1]]
+        vv = dd %>%
+          data.frame(stringsAsFactors = F) %>%
+          setNames(c("@TIME_PERIOD", "@OBS_VALUE")) %>%
+          setNames(gsub("X.", "@", names(.)))
+        
+        new_list = list()
+        new_list[[1]] = vv
+        row = row %>%
+          select(-data) %>%
+          mutate(data = list(vv),
+                 nrow = nrow(vv))
+        
+        fixed_rows = fixed_rows %>%
+          bind_rows(row)
+      }
+    }
+    
+    df_final = df_final[-index_to_fix, ] %>%
+      bind_rows(fixed_rows)
+    
+    if (tot_na_rows - sum(is.na(df_final$nrow)) != nrow(fixed_rows)){
+      cat('\n##### check single-rowed data recovering')
+    } else {
+      saveRDS(df_final, './df_final.rds')
+    }
+    
+  }
+  
   # check downloaded data
   
   check_expected_rows = expand.grid(indicator = variable_list$values, country_code = country_list$values) %>%
