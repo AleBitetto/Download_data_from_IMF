@@ -3,7 +3,7 @@
 library(lubridate)
 library(imfr)
 library(data.table)
-library(dplyr)
+options(tidyverse.quiet = TRUE)
 library(tidyverse)
 library(stringr)
 
@@ -33,16 +33,24 @@ source('./Help.R')
   
   ########## get codes from codelist
   
-  df_codes = c()
+  df_codes = fail = c()
   for(i in 1:nrow(df_codelist)){
+    err = try(tt <- imf_codes(df_codelist$codelist[i], return_raw = FALSE, times = 3), silent = T)
+    
+    if (class(err) != "try-error"){
     df_codes = df_codes %>%
-      bind_rows(imf_codes(df_codelist$codelist[i], return_raw = FALSE, times = 3) %>%
+      bind_rows(tt %>%
                   mutate_all(as.character) %>%
                   rename(values = codes) %>%
                   mutate(code = df_codelist$codelist[i],
                          code_description = df_codelist$description[i])) %>%
       select(code, code_description, values, description)
+    rm(tt)
+    } else {
+      fail = c(fail, df_codelist$codelist[i])
+    }
   }
+  if (length(fail) > 0){cat('\n\n- failed to download code:\n', paste0(fail, collapse = '\n'))}
   
   
   
@@ -68,7 +76,7 @@ source('./Help.R')
   
   ########## download data
   
-  df_download = c()
+  df_download = data.frame()
   
   # reload previous download
   df_download = readRDS('./df_download.rds') %>% unique()
