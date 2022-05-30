@@ -83,7 +83,7 @@ source('./Help.R')
   
   
   country_to_remove = c("1C_977", "1C_Reporters", "1E", "4F", "5B", "5H", "5I", "5M", "5W", "5Y", "7B", "All Countries", "FSD Reporters", "R1", "U2", "X0",
-                        "1C_752" ,"1C_355" ,"CSH" , "1C_356" ,"1C_568" ,"TP" ,"1C_473" ,"1C_459" ,"YUC")
+                        "1C_752" ,"1C_355" ,"CSH" , "1C_356" ,"1C_568" ,"TP" ,"1C_473" ,"1C_459" ,"YUC", "Metadata Tables")
   country_list = df_codes %>%
     filter(code_description == "Geographical Areas") %>%
     filter(!values %in% country_to_remove)
@@ -102,8 +102,13 @@ source('./Help.R')
   check_main_values = variable_list %>%
     group_by(values_main) %>%
     summarize(count = n())
-  if (max(check_main_values$count) > 3){cat('\n\n##### some values_main with more than 3 values. Check check_main_values')}
+  if (max(check_main_values$count) > 4){cat('\n\n##### some values_main with more than 4 values. Check check_main_values')}
   
+  
+  # todo: togli, serve solo per le 17 variabili che usiamo
+  variable_list = variable_list %>%
+    filter(values %in% c("FSKA_PT", "FSCD_PT", "FSFCD_PT", "FSFC_PT", "FSPE_PT", "FSEIM_PT", "FSLS_PT", "FSLT_PT", "FSSNO_PT",
+                         "FSENE_PT", "FSKNL_PT", "FSANL_PT", "FSKRC_PT", "FSKRTC_PT", "FSERA_PT", "FSERE_PT", "FSASDR_PT"))
   
   
   error_list = c()

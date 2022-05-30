@@ -40,7 +40,7 @@ download_data = function(database_id, var, ctry){
           data.frame(stringsAsFactors = F) %>%
           setNames(gsub("X.", "@", names(.))) %>%
           tibble()}
-        available_dataset = available_dataset[1:5] %>%
+        available_dataset = available_dataset[c("@FREQ", "@REF_AREA", "@INDICATOR", "@UNIT_MULT", "@TIME_FORMAT")] %>%
           data.frame(stringsAsFactors = F) %>%
           setNames(gsub("X.", "@", names(.))) %>%
           mutate(Obs = list(Obs_data))
@@ -50,7 +50,7 @@ download_data = function(database_id, var, ctry){
       single_df = list()
       for (i in 1:nrow(available_dataset)){
         err_df <- try(df <- available_dataset$Obs[i][[1]], silent = T)
-        if (typeof(df) == "character" | class(err_df) == "try-error"){
+        if (typeof(df) == "character" | class(err_df)[1] == "try-error"){
           df = available_dataset$Obs[i, ] %>%
             setNames(c("@TIME_PERIOD", "@OBS_VALUE")) %>%
             # t() %>%
