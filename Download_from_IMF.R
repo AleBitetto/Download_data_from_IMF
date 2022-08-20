@@ -164,7 +164,7 @@ source('./Help.R')
     var_i = var_i + 1
   } # var
   rm(reload_check)
-  tot_diff=seconds_to_period(difftime(Sys.time(), start_time_overall, units='secs'))
+  tot_diff=seconds_to_period(difftime(Sys.time(), start_time, units='secs'))
   cat('\n\nTotal elapsed time:', paste0(lubridate::hour(tot_diff), 'h:', lubridate::minute(tot_diff), 'm:', round(lubridate::second(tot_diff))))
 
   # attempt to download again failed status
@@ -366,4 +366,17 @@ aa=vv$CompactData$DataSet$Series
 vv$iso2c %>% uniqueN()
 
 
+df_download %>% filter(`@FREQ` == "Q") %>% select(date_max) %>% table()
+df_download2 %>% filter(`@FREQ` == "Q") %>% filter(`@INDICATOR` %in% variable_list$values) %>% select(date_max) %>% table()
 
+df_final2 = readRDS('./df_final - Copy.rds')
+df_final %>% select(status) %>% table()
+df_final2 %>% filter(indicator_main %in% variable_list$values_main) %>% select(status) %>% table()
+
+
+
+
+
+real_ex <- imf_data(database_id = 'IFS', indicator = 'FSASDR_PT',
+                    country = c('CN', 'GB'), freq = 'A',
+                    start = 2000, end = current_year())
